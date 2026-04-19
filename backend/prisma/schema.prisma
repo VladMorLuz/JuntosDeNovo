@@ -1,0 +1,21 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "sqlite"
+  url      = env("DATABASE_URL")
+}
+
+model Person {
+  id               String   @id @default(uuid())
+  name             String   // Nome completo da pessoa procurada 
+  age              Int?     // Idade aproximada (opcional)
+  description      String   // Características físicas (roupas, cicatrizes, etc) 
+  lastSeenLocation String   // Onde a pessoa foi vista pela última vez na evacuação 
+  status           String   @default("desaparecido") // Pode ser: "desaparecido" ou "encontrado" 
+  contactInfo      String   // Telefone ou info de quem está procurando (ex: Júlia) 
+  photoUrl         String?  // Link para foto, se houver 
+  createdAt        DateTime @default(now()) // Data do registro no sistema 
+  updatedAt        DateTime @updatedAt
+}
