@@ -1,17 +1,78 @@
 ---
+import Layout from '../layouts/Layout.astro';
+import CardDesaparecido from '../components/CardDesaparecido.astro';
 
+let desaparecidos = [];
+try {
+  const response = await fetch('http://localhost:3333/api/missing');
+  if (response.ok) {
+    desaparecidos = await response.json();
+  } else {
+    console.error("Backend retornou erro");
+  }
+} catch (error) {
+  console.error("Erro de conexão com a API. O backend tá rodando?", error);
+}
+
+const aindaDesaparecidos = desaparecidos.filter((p: any) => p.status === 'desaparecido');
+const jaEncontrados = desaparecidos.filter((p: any) => p.status === 'encontrado');
 ---
 
-<html lang="en">
-	<head>
-		<meta charset="utf-8" />
-		<link rel="icon" type="image/svg+xml" href="/favicon.svg" />
-		<link rel="icon" href="/favicon.ico" />
-		<meta name="viewport" content="width=device-width" />
-		<meta name="generator" content={Astro.generator} />
-		<title>Astro</title>
-	</head>
-	<body>
-		<h1>Astro</h1>
-	</body>
-</html>
+<Layout title="Mural de Buscas">
+  <div class="mb-6">
+    <h1 class="text-3xl font-extrabold text-gray-900 mb-2">Mural de Buscas Ativas</h1>
+    <p class="text-gray-600">
+      Ajude a conectar famílias. Se você tem informações sobre alguma destas pessoas, entre em contato imediatamente com o número listado.
+    </p>
+  </div>
+
+  <section class="mb-10">
+    <h2 class="text-xl font-bold text-red-700 mb-4 border-b border-red-200 pb-2">
+      🚨 Pessoas Procuradas ({aindaDesaparecidos.length})
+    </h2>
+    
+    {aindaDesaparecidos.length === 0 ? (
+      <div class="bg-gray-50 border border-gray-200 rounded-lg p-8 text-center text-gray-500">
+        Nenhum registro de desaparecimento ativo no momento. 🙏
+      </div>
+    ) : (
+      <div class="flex flex-col gap-4">
+        {aindaDesaparecidos.map((pessoa: any) => (
+          <CardDesaparecido 
+            id={pessoa.id}
+            name={pessoa.name}
+            age={pessoa.age}
+            description={pessoa.description}
+            lastSeenLocation={pessoa.lastSeenLocation}
+            contactInfo={pessoa.contactInfo}
+            status={pessoa.status}
+            photoUrl={pessoa.photoUrl}
+          />
+        ))}
+      </div>
+    )}
+  </section>
+
+  {jaEncontrados.length > 0 && (
+    <section>
+      <h2 class="text-xl font-bold text-green-700 mb-4 border-b border-green-200 pb-2">
+        ✅ Casos Resolvidos ({jaEncontrados.length})
+      </h2>
+      
+      <div class="flex flex-col gap-4 opacity-75 hover:opacity-100 transition-opacity">
+        {jaEncontrados.map((pessoa: any) => (
+          <CardDesaparecido 
+            id={pessoa.id}
+            name={pessoa.name}
+            age={pessoa.age}
+            description={pessoa.description}
+            lastSeenLocation={pessoa.lastSeenLocation}
+            contactInfo={pessoa.contactInfo}
+            status={pessoa.status}
+            photoUrl={pessoa.photoUrl}
+          />
+        ))}
+      </div>
+    </section>
+  )}
+</Layout>

@@ -1,0 +1,68 @@
+---
+interface Props {
+  id: string;
+  name: string;
+  age?: number | null;
+  description: string;
+  lastSeenLocation: string;
+  contactInfo: string;
+  status: string;
+  photoUrl?: string | null;
+}
+
+const { id, name, age, description, lastSeenLocation, contactInfo, status, photoUrl } = Astro.props;
+
+const isEncontrado = status === 'encontrado';
+const badgeColor = isEncontrado 
+  ? 'bg-green-100 text-green-800 border-green-200' 
+  : 'bg-red-100 text-red-800 border-red-200';
+
+const avatarPlaceholder = `https://ui-avatars.com/api/?name=${name}&background=random&size=150`;
+---
+
+<div class="bg-white rounded-xl shadow-sm border border-gray-200 overflow-hidden flex flex-col sm:flex-row hover:shadow-md transition-shadow mb-4">
+  
+  <div class="w-full sm:w-32 h-48 sm:h-auto flex-shrink-0 bg-gray-100">
+    <img
+      src={photoUrl || avatarPlaceholder}
+      alt={`Foto de ${name}`}
+      class="w-full h-full object-cover"
+    />
+  </div>
+
+  <div class="p-4 flex flex-col flex-grow">
+    
+    <div class="flex justify-between items-start mb-2">
+      <h3 class="text-xl font-bold text-gray-900">
+        {name} 
+        {age && <span class="text-gray-500 text-sm font-normal">({age} anos)</span>}
+      </h3>
+      <span class={`px-2 py-1 rounded-full text-xs font-semibold border ${badgeColor} uppercase tracking-wide`}>
+        {status}
+      </span>
+    </div>
+
+    <div class="text-sm text-gray-700 space-y-1 mb-4 flex-grow">
+      <p><strong class="text-gray-900">Última vez visto:</strong> {lastSeenLocation}</p>
+      <p><strong class="text-gray-900">Características:</strong> {description}</p>
+    </div>
+
+    <div class="mt-auto pt-3 border-t border-gray-100 flex items-center justify-between">
+      <p class="text-sm">
+        <strong class="text-gray-900">Contato:</strong> 
+        <span class="text-blue-600 font-medium">{contactInfo}</span>
+      </p>
+      
+      {/* Só mostra o botão se a pessoa ainda estiver desaparecida */}
+      {!isEncontrado && (
+        <button
+          class="text-xs bg-gray-100 hover:bg-gray-200 text-gray-700 font-semibold py-1 px-3 rounded transition-colors"
+          onclick={`alert('No futuro, este botão vai alterar o status da pessoa com ID: ${id}')`}
+        >
+          Marcar como Encontrado
+        </button>
+      )}
+    </div>
+
+  </div>
+</div>

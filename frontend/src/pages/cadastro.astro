@@ -1,0 +1,106 @@
+---
+import Layout from '../layouts/Layout.astro';
+---
+
+<Layout title="Reportar Desaparecimento">
+  <div class="max-w-2xl mx-auto bg-white p-6 sm:p-8 rounded-xl shadow-sm border border-gray-200 mt-6">
+    
+    <div class="mb-6">
+      <h1 class="text-3xl font-extrabold text-gray-900 mb-2">Reportar Desaparecimento</h1>
+      <p class="text-gray-600">
+        Preencha os dados abaixo com o máximo de precisão possível. Essas informações são cruciais para as equipes de resgate e voluntários.
+      </p>
+    </div>
+
+    <form id="form-cadastro" class="space-y-5">
+      
+      <div>
+        <label for="name" class="block text-sm font-bold text-gray-700 mb-1">Nome Completo *</label>
+        <input type="text" id="name" name="name" required placeholder="Ex: Maria da Silva" 
+          class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-none transition-all" />
+      </div>
+
+      <div class="flex flex-col sm:flex-row gap-5">
+        <div class="w-full sm:w-1/3">
+          <label for="age" class="block text-sm font-bold text-gray-700 mb-1">Idade (aprox.)</label>
+          <input type="number" id="age" name="age" placeholder="Ex: 45" 
+            class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 outline-none" />
+        </div>
+
+        <div class="w-full sm:w-2/3">
+          <label for="contactInfo" class="block text-sm font-bold text-gray-700 mb-1">Seu Contato (Telefone) *</label>
+          <input type="text" id="contactInfo" name="contactInfo" required placeholder="Ex: (11) 99999-9999" 
+            class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 outline-none" />
+        </div>
+      </div>
+
+      <div>
+        <label for="lastSeenLocation" class="block text-sm font-bold text-gray-700 mb-1">Visto por último em *</label>
+        <input type="text" id="lastSeenLocation" name="lastSeenLocation" required placeholder="Ex: Escola Municipal do Centro" 
+          class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 outline-none" />
+      </div>
+
+      <div>
+        <label for="description" class="block text-sm font-bold text-gray-700 mb-1">Características Físicas / Roupas *</label>
+        <textarea id="description" name="description" required rows="3" placeholder="Ex: Camisa vermelha, calça jeans, usa óculos..." 
+          class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 outline-none resize-none"></textarea>
+      </div>
+
+      <div>
+        <label for="photoUrl" class="block text-sm font-bold text-gray-700 mb-1">Link para Foto (Opcional)</label>
+        <input type="url" id="photoUrl" name="photoUrl" placeholder="https://link-da-foto.com/imagem.jpg" 
+          class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 outline-none text-sm" />
+        <p class="text-xs text-gray-500 mt-1">Se não tiver foto, o sistema criará um avatar automático.</p>
+      </div>
+
+      <div class="pt-4">
+        <button type="submit" 
+          class="w-full bg-blue-700 hover:bg-blue-800 text-white font-bold py-3 px-4 rounded-lg transition-colors flex justify-center items-center gap-2">
+          <span>📢</span> Registrar no Mural
+        </button>
+      </div>
+    </form>
+    
+    <div id="loading-msg" class="hidden mt-4 text-center text-blue-600 font-semibold">
+      Enviando dados... segura a emoção!
+    </div>
+
+  </div>
+</Layout>
+
+<script>
+  const form = document.getElementById('form-cadastro');
+  const loadingMsg = document.getElementById('loading-msg');
+
+  form?.addEventListener('submit', async (evento) => {
+    evento.preventDefault();
+    
+    loadingMsg?.classList.remove('hidden');
+
+    const formData = new FormData(form as HTMLFormElement);
+    const data = Object.fromEntries(formData.entries());
+
+    try {
+      const response = await fetch('http://localhost:3333/api/missing', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify(data),
+      });
+
+      if (response.ok) {
+        alert('Registro criado com sucesso! Voltando para o mural...');
+        window.location.href = '/'; 
+      } else {
+        const erro = await response.json();
+        alert(`Deu ruim: ${erro.error}`);
+      }
+    } catch (error) {
+      alert('Erro de conexão! O seu backend (porta 3333) tá rodando?');
+      console.error(error);
+    } finally {
+      loadingMsg?.classList.add('hidden');
+    }
+  });
+</script>
