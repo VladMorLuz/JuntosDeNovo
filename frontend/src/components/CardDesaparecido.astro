@@ -53,16 +53,48 @@ const avatarPlaceholder = `https://ui-avatars.com/api/?name=${name}&background=r
         <span class="text-blue-600 font-medium">{contactInfo}</span>
       </p>
       
-      {/* Só mostra o botão se a pessoa ainda estiver desaparecida */}
       {!isEncontrado && (
         <button
-          class="text-xs bg-gray-100 hover:bg-gray-200 text-gray-700 font-semibold py-1 px-3 rounded transition-colors"
-          onclick={`alert('No futuro, este botão vai alterar o status da pessoa com ID: ${id}')`}
+          class="btn-marcar-encontrado text-xs bg-gray-100 hover:bg-gray-200 text-gray-700 font-semibold py-1 px-3 rounded transition-colors"
+          data-id={id}
         >
           Marcar como Encontrado
         </button>
       )}
     </div>
-
   </div>
 </div>
+
+<script>
+  const botoes = document.querySelectorAll('.btn-marcar-encontrado');
+
+  botoes.forEach(botao => {
+    botao.addEventListener('click', async (evento) => {
+      const id = (evento.target as HTMLElement).getAttribute('data-id');
+      
+      const confirmacao = confirm('Confirmar que esta pessoa foi encontrada?');
+      if (!confirmacao) return;
+
+      botao.textContent = 'Atualizando...';
+
+      try {
+        const response = await fetch(`http://localhost:3333/api/missing/${id}/status`, {
+          method: 'PATCH',
+          headers: {
+            'Content-Type': 'application/json',
+          },
+          body: JSON.stringify({ status: 'encontrado' }),
+        });
+
+        if (response.ok) {
+          // Recarrega a página pra pessoa descer pra lista verde
+          window.location.reload();
+        } else {
+          alert('Erro ao atualizar o status no banco de dados.');
+        }
+      } catch (error) {
+        alert('Erro de conexão com a API.');
+      }
+    });
+  });
+</script>
